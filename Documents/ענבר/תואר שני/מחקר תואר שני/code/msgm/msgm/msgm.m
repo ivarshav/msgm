@@ -40,6 +40,9 @@ function [x, e, t] = msgm(G, x, param)
     for i = 1 : param.numVcycles
 
         x = msgmVcycle(G, x, param);
+        e(i) = msgmEnergy(G, x);
+        str = sprintf('energy after Vcycle %d is: %s', i, e(i));
+        disp(str);
     end
 
 	% last optimization
@@ -47,6 +50,6 @@ function [x, e, t] = msgm(G, x, param)
 
     % energy & time
     t = toc(tStart);
-    e = msgmEnergy(G, x);
+
 
 end

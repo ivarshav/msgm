@@ -6,7 +6,7 @@ function param = msgmParams()
     param.numMinVars = 10;              % num of variables for V-cycle stopping criterion
   
     % optimization
-    param.optimization = 'LSA';         % 'QPBO' or 'LSA', 'NONE' for skipping
+    param.optimization = 'NONE';         % 'QPBO' or 'LSA', 'NONE' for skipping
     param.numSwapIterations = 1;        % num of 'SWAP' iterations
     param.imSz = [];                    % used for LSA-euc mode, for optimizing grids    
 

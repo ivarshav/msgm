@@ -11,7 +11,7 @@ function [eMS, tMS, eSS, tSS] = msgmDemo()
 %
 
     % parameters
-    GRID_SIZE = 100;
+    GRID_SIZE = 10;
     N_LABELS = 2;
     N_REPETITIONS = 10;
     COUPLING = 1;
@@ -36,14 +36,14 @@ function [eMS, tMS, eSS, tSS] = msgmDemo()
         disp(strcat('iteration: ',num2str(i)));
 
         % generate the energy potentials by sampling from a random distribution
-        G.u = round(randn(GRID_SIZE^2, N_LABELS), 1);
-        G.p = COUPLING * round(randn(N_LABELS, N_LABELS, size(G.adj, 1)), 1);
+        G.u = round(randn(GRID_SIZE^2, N_LABELS) * 10^1) / 10^1;
+        G.p = COUPLING * round(randn(N_LABELS, N_LABELS, size(G.adj, 1)) * 10^1) / 10^1;
 
 
         % set parameters for multiscale optimization
         param = msgmParams;
         param.imSz = [GRID_SIZE, GRID_SIZE];
-        param.optimization = 'LSA';
+        param.optimization = 'NONE';
         param.numSwapIterations = 1;
         param.bSoftInterpolation = false;
         param.numVcycles = 1;

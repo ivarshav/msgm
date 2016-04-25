@@ -5,7 +5,7 @@ function e = msgmEnergy(G, x)
 
     % N-th significant digit for round-off
     N = 6;
-
+    x = double(x);
     e = 0;
     
     % pairwise term
@@ -24,5 +24,5 @@ function e = msgmEnergy(G, x)
     e = e + sum(G.u(ind));
     
     % rouding to N-th significant digit
-    e = round(e, N);
+    e = round(e * 10^N) / 10^N;
 end

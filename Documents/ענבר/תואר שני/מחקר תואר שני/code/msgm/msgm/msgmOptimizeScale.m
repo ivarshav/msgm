@@ -33,7 +33,8 @@ function x = msgmOptimizeScale(G, x, param)
             
             x = msgmSwap(G, x, param);    
         end
-        
+        disp('optimizition energy:');
+        disp(msgmEnergy(G, x));
         assert(msgmEnergy(G, x) <= msgmEnergy(G, x_));
     end
 end
