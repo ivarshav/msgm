@@ -12,6 +12,7 @@ NTUSER.DAT*
 .*
 #directories
 /[A-C]*
+
 L*
 Q*
 

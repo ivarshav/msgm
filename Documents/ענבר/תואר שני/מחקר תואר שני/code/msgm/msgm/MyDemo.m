@@ -9,10 +9,10 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 16; 
+    j = 38; 
     
     % parameters
-    GRID_SIZE = 30;
+    GRID_SIZE = 200;
     N_LABELS = 2;
     N_REPETITIONS = 1;
     COUPLING = 1;
@@ -69,20 +69,16 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         x = msgmOptimizeScale(G, y, param);
         tSS(i) = toc(tSS_);
         eSS(i) = msgmEnergy(G, x);
-        
-        if ~exist(strcat('results/exp', num2str(j)), 'dir')
-            mkdir('results',strcat('exp', num2str(j)));
-        end      
+         
     end
     
 
     fig = figure;
     plot(eMS(1, :), '-o');
-%     plot(eMS(1, :), '--go', tSS, eSS, ':r*');
-    print(fig, strcat('results/exp', num2str(j), '/e'), '-djpeg');
+    print(fig, strcat('results/exp', num2str(j)), '-djpeg');
 
     xlswrite('exp.xls', ...
-        {j, GRID_SIZE,  ReprVector(y), N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS), ReprVector(eSS), ReprVector(tSS);},...
+        {j, GRID_SIZE,  'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS), ReprVector(eSS), ReprVector(tSS);},...
         1, sprintf('A%d' ,(j+1)));
     
     
