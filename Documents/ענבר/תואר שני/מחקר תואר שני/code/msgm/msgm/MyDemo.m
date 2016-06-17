@@ -9,10 +9,10 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 38; 
+    j = 39; % not real exp.
     
     % parameters
-    GRID_SIZE = 200;
+    GRID_SIZE = 100;
     N_LABELS = 2;
     N_REPETITIONS = 1;
     COUPLING = 1;
@@ -29,7 +29,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     param.optimization = 'QPBO';
     param.numSwapIterations = 1;
     param.bSoftInterpolation = false;
-    param.numVcycles = 15;
+    param.numVcycles = 10;
     
     % initialize output data variables
     eMS = zeros(N_REPETITIONS, param.numVcycles);
@@ -64,12 +64,14 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         [~, eMS(i, 1:param.numVcycles), tMS(i)] = msgm(G, y, param);
 
         % single scale
-        G.numLabels = size(G.u, 2);
+        G.numLabels = size(G.u, 2); 
+        x = y;
         tSS_ = tic;
-        x = msgmOptimizeScale(G, y, param);
+        for k = 1: param.numVcycles
+            x = msgmOptimizeScale(G, x, param);
+        end
         tSS(i) = toc(tSS_);
         eSS(i) = msgmEnergy(G, x);
-         
     end
     
 
