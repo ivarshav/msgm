@@ -9,12 +9,12 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 39; % not real exp.
+    j = 34; %not real exp
     
     % parameters
-    GRID_SIZE = 100;
+    GRID_SIZE = 70;
     N_LABELS = 2;
-    N_REPETITIONS = 1;
+    N_REPETITIONS = 2;
     COUPLING = 1;
     
     % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
@@ -29,7 +29,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     param.optimization = 'QPBO';
     param.numSwapIterations = 1;
     param.bSoftInterpolation = false;
-    param.numVcycles = 10;
+    param.numVcycles = 15;
     
     % initialize output data variables
     eMS = zeros(N_REPETITIONS, param.numVcycles);
@@ -80,7 +80,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     print(fig, strcat('results/exp', num2str(j)), '-djpeg');
 
     xlswrite('exp.xls', ...
-        {j, GRID_SIZE,  'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS), ReprVector(eSS), ReprVector(tSS);},...
+        {j, GRID_SIZE, 'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS), ReprVector(eSS), ReprVector(tSS);},...
         1, sprintf('A%d' ,(j+1)));
     
     
