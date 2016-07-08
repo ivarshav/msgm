@@ -9,13 +9,13 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 34; %not real exp
+    j = 68; %not real exp 
     
     % parameters
     GRID_SIZE = 70;
-    N_LABELS = 2;
+    N_LABELS = 4;
     N_REPETITIONS = 2;
-    COUPLING = 1;
+    COUPLING = 2;
     
     % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
     sz = [GRID_SIZE, GRID_SIZE];
