@@ -9,13 +9,13 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 68; %not real exp 
+    j = 69; %not real exp 
     
     % parameters
-    GRID_SIZE = 70;
-    N_LABELS = 4;
-    N_REPETITIONS = 2;
-    COUPLING = 2;
+    GRID_SIZE = 30;
+    N_LABELS = 2;
+    N_REPETITIONS = 1;
+    COUPLING = 1;
     
     % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
     sz = [GRID_SIZE, GRID_SIZE];
@@ -29,22 +29,30 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     param.optimization = 'QPBO';
     param.numSwapIterations = 1;
     param.bSoftInterpolation = false;
-    param.numVcycles = 15;
+    param.numVcycles = 8;
     
     % initialize output data variables
     eMS = zeros(N_REPETITIONS, param.numVcycles);
-    eSS = zeros(N_REPETITIONS,1);
-    tMS = zeros(N_REPETITIONS,1);
-    tSS = zeros(N_REPETITIONS,1);
+    eSS = zeros(N_REPETITIONS, param.numVcycles);
+    tMS = zeros(N_REPETITIONS, 1);
+    tSS = zeros(N_REPETITIONS, 1);
     
     header = {'exp', 'grid size', 'random initial assignment', 'num repetitions', 'optimization', 'numVcycles', 'bSoftInterpolation', ...
-        'Variable grouping', 'eMS', 'tMS', 'eSS', 'tSS'};
+        'Variable grouping','num labels','coupling', 'eMS', 'tMS', 'eSS', 'tSS'};
     xlswrite('exp.xls', header);
     
     % random initial assignment
     % fix random seed, for reproducibility
     rng(j);
     y = ones(GRID_SIZE^2, 1) + round(rand(GRID_SIZE^2, 1));
+    
+    fig = figure('Name', strcat('exp. ', num2str(j)));
+    title(sprintf('Grid size: %d, numVcycles: %d, optimization: %s', GRID_SIZE, param.numVcycles, param.optimization));
+    xlabel('Vcycle');
+    ylabel('Energy');
+    graph_colors = num2cell(jet(N_REPETITIONS * 2), 2);
+    legendInfo = '';
+    legend('k');
     
     % do N_REPETITIONS iterations
     for i = 1 : N_REPETITIONS
@@ -69,19 +77,35 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         tSS_ = tic;
         for k = 1: param.numVcycles
             x = msgmOptimizeScale(G, x, param);
+            eSS(i, k) = msgmEnergy(G, x);
         end
         tSS(i) = toc(tSS_);
         eSS(i) = msgmEnergy(G, x);
+        hold on
+        plot([1:param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i)));
+%         legendtext = [legendtext; strcat('eMS Rep', num2str(i)), 'Location', 'Best'];
+        legendInfo{i}= [strcat('eMS Rep', num2str(i))]; 
+%        legappend([strcat('eMS rep', num2str(i)), 'Location', 'SouthOutside']);
+        plot([1:param.numVcycles], eSS(i,:),  '-x', 'Color', cell2mat(graph_colors(end - i + 1)));
+        legendInfo{i + N_REPETITIONS}= [strcat('eSS Rep', num2str(i))]; 
+%         legend(strcat('eSS rep', num2str(i)), 'Location', 'SouthOutside');
+    
+% hold all;
+% end 
     end
+
+    l = legend(legendInfo);
+    set(l, 'Location', 'SouthOutside'); 
+    
+    hold off
     
 
-    fig = figure;
-    plot(eMS(1, :), '-o');
+    
     print(fig, strcat('results/exp', num2str(j)), '-djpeg');
 
     xlswrite('exp.xls', ...
-        {j, GRID_SIZE, 'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS), ReprVector(eSS), ReprVector(tSS);},...
-        1, sprintf('A%d' ,(j+1)));
+        {j, GRID_SIZE, 'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', N_LABELS, COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
+        ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
     
     
 end
