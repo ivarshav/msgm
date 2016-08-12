@@ -9,12 +9,12 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 69; %not real exp 
+    j = 2; %not real exp 
     
     % parameters
     GRID_SIZE = 30;
     N_LABELS = 2;
-    N_REPETITIONS = 1;
+    N_REPETITIONS = 2;
     COUPLING = 1;
     
     % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
@@ -26,10 +26,10 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     % set parameters for multiscale optimization
     param = msgmParams;
     param.imSz = [GRID_SIZE, GRID_SIZE];
-    param.optimization = 'QPBO';
+    param.optimization = 'LSA';
     param.numSwapIterations = 1;
     param.bSoftInterpolation = false;
-    param.numVcycles = 8;
+    param.numVcycles = 10;
     
     % initialize output data variables
     eMS = zeros(N_REPETITIONS, param.numVcycles);
@@ -46,13 +46,14 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     rng(j);
     y = ones(GRID_SIZE^2, 1) + round(rand(GRID_SIZE^2, 1));
     
+    %graph
     fig = figure('Name', strcat('exp. ', num2str(j)));
-    title(sprintf('Grid size: %d, numVcycles: %d, optimization: %s', GRID_SIZE, param.numVcycles, param.optimization));
+    title(sprintf('Grid size: %d, optimization: %s', GRID_SIZE, param.optimization));
     xlabel('Vcycle');
     ylabel('Energy');
     graph_colors = num2cell(jet(N_REPETITIONS * 2), 2);
     legendInfo = '';
-    legend('k');
+    leg_info = 1;
     
     % do N_REPETITIONS iterations
     for i = 1 : N_REPETITIONS
@@ -82,29 +83,35 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         tSS(i) = toc(tSS_);
         eSS(i) = msgmEnergy(G, x);
         hold on
-        plot([1:param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i)));
-%         legendtext = [legendtext; strcat('eMS Rep', num2str(i)), 'Location', 'Best'];
-        legendInfo{i}= [strcat('eMS Rep', num2str(i))]; 
-%        legappend([strcat('eMS rep', num2str(i)), 'Location', 'SouthOutside']);
-        plot([1:param.numVcycles], eSS(i,:),  '-x', 'Color', cell2mat(graph_colors(end - i + 1)));
-        legendInfo{i + N_REPETITIONS}= [strcat('eSS Rep', num2str(i))]; 
-%         legend(strcat('eSS rep', num2str(i)), 'Location', 'SouthOutside');
-    
-% hold all;
-% end 
+        plot([1:param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i))); %, 'LineWidth', 2);
+        legendInfo{leg_info}= [strcat('eMS Rep', num2str(i))]; 
+        plot([1:param.numVcycles], eSS(i,:),  '-.', 'Color', cell2mat(graph_colors(end - i + 1))); %, 'LineWidth', 2);
+        legendInfo{leg_info + 1}= [strcat('eSS Rep', num2str(i))]; 
+        leg_info = leg_info + 2;
     end
-
+    % plot avg of all repetitions, if more than one
+    if N_REPETITIONS > 1
+        plot([1:param.numVcycles], mean(eMS, 1), '-*', 'Color', 'm', 'LineWidth', 2);
+        legendInfo{N_REPETITIONS * 2 + 1}= ['avg. eMS ']; 
+        plot([1:param.numVcycles], mean(eSS, 1), '-*', 'Color', [1,0.4,0.6], 'LineWidth', 2);
+        legendInfo{N_REPETITIONS * 2 + 2}= ['avg. eSS ']; 
+    end
+    % add legend and more info to plot
     l = legend(legendInfo);
-    set(l, 'Location', 'SouthOutside'); 
-    
+    set(l, 'Location', 'bestoutside'); 
+    descr = {strcat('numVcycles =', num2str(param.numVcycles));
+        strcat('numLabels =', num2str(N_LABELS));
+        strcat('Coupling =', num2str(COUPLING));
+        };
+    ax1 = axes('Position',[0 0 1 1],'Visible','off');
+    axes(ax1) % sets ax1 to current axes
+    text(0.7,0.45,descr);
     hold off
-    
-
     
     print(fig, strcat('results/exp', num2str(j)), '-djpeg');
 
     xlswrite('exp.xls', ...
-        {j, GRID_SIZE, 'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', N_LABELS, COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
+        {j, GRID_SIZE, ReprVector(y), N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', N_LABELS, COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
         ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
     
     
