@@ -9,27 +9,27 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 2; %not real exp 
+    j = 27; %not real exp 
     
     % parameters
-    GRID_SIZE = 30;
+    GRID_SIZE = 70;
     N_LABELS = 2;
-    N_REPETITIONS = 2;
+    N_REPETITIONS = 1;
     COUPLING = 1;
     
     % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
     sz = [GRID_SIZE, GRID_SIZE];
-    [ii, jj] = sparse_adj_matrix(sz, 1, 1);
+    [ii, jj] = sparse_adj_matrix(sz, 1, 'inf');
     sel = ii<jj;
     G.adj = [ii(sel), jj(sel)];
     
     % set parameters for multiscale optimization
     param = msgmParams;
     param.imSz = [GRID_SIZE, GRID_SIZE];
-    param.optimization = 'LSA';
+    param.optimization = 'QPBO';
     param.numSwapIterations = 1;
     param.bSoftInterpolation = false;
-    param.numVcycles = 10;
+    param.numVcycles = 15;
     
     % initialize output data variables
     eMS = zeros(N_REPETITIONS, param.numVcycles);
@@ -99,19 +99,20 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     % add legend and more info to plot
     l = legend(legendInfo);
     set(l, 'Location', 'bestoutside'); 
-    descr = {strcat('numVcycles =', num2str(param.numVcycles));
-        strcat('numLabels =', num2str(N_LABELS));
-        strcat('Coupling =', num2str(COUPLING));
+    descr = {strcat('numVcycles: ', num2str(param.numVcycles));
+        strcat('numLabels: ', num2str(N_LABELS));
+        strcat('Coupling: ', num2str(COUPLING));
+        strcat('Variable grouping: ', '8-connected');
         };
     ax1 = axes('Position',[0 0 1 1],'Visible','off');
     axes(ax1) % sets ax1 to current axes
-    text(0.7,0.45,descr);
+    text(0.7,0.35,descr);
     hold off
     
     print(fig, strcat('results/exp', num2str(j)), '-djpeg');
 
     xlswrite('exp.xls', ...
-        {j, GRID_SIZE, ReprVector(y), N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'NORMAL', N_LABELS, COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
+        {j, GRID_SIZE, 'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, '8-connected', N_LABELS, COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
         ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
     
     
