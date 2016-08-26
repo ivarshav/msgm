@@ -9,12 +9,12 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    j = 52; %not real exp 
+    j = 53; %not real exp 
     
     % parameters
     GRID_SIZE = 70;
-    N_LABELS = 3;
-    N_REPETITIONS = 3;
+    N_LABELS = 2;
+    N_REPETITIONS = 1;
     COUPLING = 1;
     
     % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
@@ -29,7 +29,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     param.optimization = 'QPBO';
     param.numSwapIterations = 1;
     param.bSoftInterpolation = false;
-    param.numVcycles = 20;
+    param.numVcycles = 10;
     
     % initialize output data variables
     eMS = zeros(N_REPETITIONS, param.numVcycles);
@@ -60,9 +60,8 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     for i = 1 : N_REPETITIONS
 
         % fix random seed, for reproducibility
-%         rng(i);
+        rng(i);
         disp(strcat('iteration: ',num2str(i)));
-        N_LABELS = i + 1;
         
         % generate the energy potentials by sampling from a random distribution
         % unary potential of every variable is 0
@@ -87,9 +86,9 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         eSS(i) = msgmEnergy(G, x);
         hold on
         plot([1:param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i))); %, 'LineWidth', 2);
-        legendInfo{leg_info}= [strcat('eMS numLabels:', num2str(i + 1))]; 
+        legendInfo{leg_info}= [strcat('eMS Rep', num2str(i + 1))]; 
         plot([1:param.numVcycles], eSS(i,:),  '-.', 'Color', cell2mat(graph_colors(end - i + 1))); %, 'LineWidth', 2);
-        legendInfo{leg_info + 1}= [strcat('eSS numLabels:', num2str(i + 1))]; 
+        legendInfo{leg_info + 1}= [strcat('eSS Rep', num2str(i + 1))]; 
         leg_info = leg_info + 2;
     end
     % plot avg of all repetitions, if more than one
@@ -103,7 +102,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     l = legend(legendInfo);
     set(l, 'Location', 'bestoutside'); 
     descr = {strcat('numVcycles: ', num2str(param.numVcycles));
-%         strcat('numLabels: ', num2str(N_LABELS));
+        strcat('numLabels: ', num2str(N_LABELS));
         strcat('Coupling: ', num2str(COUPLING));
 %         strcat('Adjacency: ', '8-connected');
 %         strcat('Unary Potential: ', '[-1, 1]');
@@ -118,7 +117,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
     print(fig, strcat('results/exp', num2str(j)), '-djpeg');
 
     xlswrite('exp.xls', ...
-        {j, GRID_SIZE, 'too long', '1', param.optimization, param.numVcycles, param.bSoftInterpolation, 'Normal', '2,3,4', COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
+        {j, GRID_SIZE, 'too long', N_REPETITIONS, param.optimization, param.numVcycles, param.bSoftInterpolation, 'Normal', N_LABELS, COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
         ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
     
     
