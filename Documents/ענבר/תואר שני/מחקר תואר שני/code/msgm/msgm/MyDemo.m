@@ -9,13 +9,13 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    for j = 1: 30
+    for j = 46: 55
 %         j = 1; %not real exp 
 
         % parameters
         GRID_SIZE = 70;
         N_LABELS = 2;
-        N_REPETITIONS = 1;
+        N_REPETITIONS = 2;
         COUPLING = 1;
 
         % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
@@ -32,7 +32,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         param.bSoftInterpolation = false;
         param.numVcycles = 10;
         % coarsening
-        param.numEntropyBins = j;          % num of bins for conditional entorpy scores
+        param.numEntropyBins = j - 30;          % num of bins for conditional entorpy scores
 
         % initialize output data variables
         eMS = zeros(N_REPETITIONS, param.numVcycles);
@@ -89,9 +89,9 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
             eSS(i) = msgmEnergy(G, x);
             hold on
             plot([1:param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i))); %, 'LineWidth', 2);
-            legendInfo{leg_info}= [strcat('eMS Rep', num2str(i + 1))]; 
+            legendInfo{leg_info}= [strcat('eMS Rep', num2str(i))]; 
             plot([1:param.numVcycles], eSS(i,:),  '-.', 'Color', cell2mat(graph_colors(end - i + 1))); %, 'LineWidth', 2);
-            legendInfo{leg_info + 1}= [strcat('eSS Rep', num2str(i + 1))]; 
+            legendInfo{leg_info + 1}= [strcat('eSS Rep', num2str(i))]; 
             leg_info = leg_info + 2;
         end
         % plot avg of all repetitions, if more than one
@@ -105,6 +105,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         l = legend(legendInfo);
         set(l, 'Location', 'bestoutside'); 
         descr = {strcat('numVcycles: ', num2str(param.numVcycles));
+            strcat('numEntropyBins: ', num2str(param.numEntropyBins));
             strcat('numLabels: ', num2str(N_LABELS));
             strcat('Coupling: ', num2str(COUPLING));
     %         strcat('Adjacency: ', '8-connected');
