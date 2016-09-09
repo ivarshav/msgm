@@ -9,14 +9,15 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-    for j = 46: 55
-%         j = 1; %not real exp 
+%     for j = 46: 55
+        j = 56; %not real exp 
 
         % parameters
         GRID_SIZE = 70;
         N_LABELS = 2;
         N_REPETITIONS = 2;
         COUPLING = 1;
+        VARIABLE_GROUPING = 'Inverse';
 
         % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
         sz = [GRID_SIZE, GRID_SIZE];
@@ -30,9 +31,8 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         param.optimization = 'QPBO';
         param.numSwapIterations = 1;
         param.bSoftInterpolation = false;
-        param.numVcycles = 10;
-        % coarsening
-        param.numEntropyBins = j - 30;          % num of bins for conditional entorpy scores
+        param.numVcycles = 5;
+        
 
         % initialize output data variables
         eMS = zeros(N_REPETITIONS, param.numVcycles);
@@ -41,7 +41,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         tSS = zeros(N_REPETITIONS, 1);
 
         header = {'exp', 'grid size', 'num repetitions', 'optimization', 'numVcycles', 'numEntropyBins', ...
-            'bSoftInterpolation' ,'num labels','coupling', 'eMS', 'tMS', 'eSS', 'tSS'};
+            'Variable grouping','bSoftInterpolation' ,'num labels','coupling', 'eMS', 'tMS', 'eSS', 'tSS'};
         xlswrite('group_exp.xls', header);
 
         % random initial assignment
@@ -107,6 +107,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         descr = {strcat('numVcycles: ', num2str(param.numVcycles));
             strcat('numEntropyBins: ', num2str(param.numEntropyBins));
             strcat('numLabels: ', num2str(N_LABELS));
+            strcat('Variable grouping: ', num2str(VARIABLE_GROUPING));
             strcat('Coupling: ', num2str(COUPLING));
     %         strcat('Adjacency: ', '8-connected');
     %         strcat('Unary Potential: ', '[-1, 1]');
@@ -122,9 +123,10 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 
         xlswrite('group_exp.xls', ...
             {j, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
-            param.bSoftInterpolation, N_LABELS, COUPLING, ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
+            VARIABLE_GROUPING, param.bSoftInterpolation, N_LABELS, COUPLING,...
+            ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
             ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
-    end 
+%     end 
     
 end
 
