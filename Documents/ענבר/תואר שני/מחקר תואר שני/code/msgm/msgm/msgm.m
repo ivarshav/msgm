@@ -41,7 +41,7 @@ function [x, e, t] = msgm(G, x, param)
 
         x = msgmVcycle(G, x, param);
         e(i) = msgmEnergy(G, x);
-        str = sprintf('energy after Vcycle %d is: %s', i, e(i));
+        str = sprintf('energy after Vcycle %d is: %s', i, num2str(e(i)));
         disp(str);
     end
 
