@@ -13,7 +13,7 @@ NTUSER.DAT*
 /ntuser.*
 .*
 #directories
-/[A-F]*
+/[A-C]*
 
 *PyCharm*
 L*
