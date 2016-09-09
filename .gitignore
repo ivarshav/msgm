@@ -7,12 +7,15 @@
 *.tmp
 *.jpg
 *.ini
+*.rar
+*.lyx*
 NTUSER.DAT*
 /ntuser.*
 .*
 #directories
-/[A-C]*
+/[A-F]*
 
+*PyCharm*
 L*
 Q*
 
