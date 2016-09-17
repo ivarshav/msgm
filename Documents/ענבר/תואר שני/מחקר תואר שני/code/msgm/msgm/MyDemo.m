@@ -10,14 +10,14 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %
     % experiment number
 %     for j = 46: 55
-        j = 69; %not real exp 
+        j = 70; %not real exp 
 
         % parameters
         GRID_SIZE = 70;
         N_LABELS = 2;
         N_REPETITIONS = 3;
         COUPLING = 1;
-        VARIABLE_GROUPING = 'Descending edges';
+        VARIABLE_GROUPING = 'Normal';
 
         % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
         sz = [GRID_SIZE, GRID_SIZE];
