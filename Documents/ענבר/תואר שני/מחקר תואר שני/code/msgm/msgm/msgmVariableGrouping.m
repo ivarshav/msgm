@@ -48,6 +48,9 @@ function [vg, mapFineToCoarse] = msgmVariableGrouping(G, param, bInitialized)
             v1 = v2;
             v2 = v_;
         end
+        v_ = v1;
+        v1 = v2;
+        v2 = v_;
         
         % verify that v2 has not been assigned
         % ..and that v1 is either seed or not assigned
