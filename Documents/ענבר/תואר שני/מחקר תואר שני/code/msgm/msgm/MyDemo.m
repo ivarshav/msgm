@@ -9,15 +9,17 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-%     for j = 46: 55
-        j = 70; %not real exp 
+     for j = 1: 15
+%         j = 1; %not real exp 
 
         % parameters
-        GRID_SIZE = 70;
-        N_LABELS = 2;
-        N_REPETITIONS = 3;
+        GRID_SIZE = 100;
+        N_LABELS = 3;
+        N_REPETITIONS = 1;
         COUPLING = 1;
         VARIABLE_GROUPING = 'Normal';
+        % make constant the random initial assignment
+        SEED = 5;
 
         % generate the adjacency relations for [GRID_SIZE x GRID_SIZE] grid
         sz = [GRID_SIZE, GRID_SIZE];
@@ -31,7 +33,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         param.optimization = 'QPBO';
         param.numSwapIterations = 1;
         param.bSoftInterpolation = false;
-        param.numVcycles = 7;
+        param.numVcycles = 10;
         param.numEntropyBins = 20; 
         
 
@@ -43,11 +45,11 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 
         header = {'exp', 'grid size', 'num repetitions', 'optimization', 'numVcycles', 'numEntropyBins', ...
             'Variable grouping','bSoftInterpolation' ,'num labels','coupling', 'eMS', 'tMS', 'eSS', 'tSS'};
-        xlswrite('group_exp.xls', header);
+        xlswrite('group_exp1.xls', header);
 
         % random initial assignment
         % fix random seed, for reproducibility
-        rng(j);
+        rng(SEED);
         y = ones(GRID_SIZE^2, 1) + round(rand(GRID_SIZE^2, 1));
 
         %graph
@@ -64,7 +66,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         for i = 1 : N_REPETITIONS
 
             % fix random seed, for reproducibility
-            rng(i);
+%             rng(i);
             disp(strcat('iteration: ',num2str(i)));
 
             % generate the energy potentials by sampling from a random distribution
@@ -120,9 +122,9 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         text(0.7,0.35,descr);
         hold off
 
-        print(fig, strcat('results/group_exp/exp', num2str(j)), '-djpeg');
+        print(fig, strcat('results/group_exp1/exp', num2str(j)), '-djpeg');
 
-        xlswrite('group_exp.xls', ...
+        xlswrite('group_exp1.xls', ...
             {j, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
             VARIABLE_GROUPING, param.bSoftInterpolation, N_LABELS, COUPLING,...
             ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
