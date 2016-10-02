@@ -9,13 +9,13 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %   - COUPLING : coupling parameter, values >1 correspond to "harder" models
 %
     % experiment number
-     for j = 1: 15
-%         j = 1; %not real exp 
+%      for i = 1: 15
+%         i = 1; %not real exp 
 
         % parameters
         GRID_SIZE = 100;
         N_LABELS = 3;
-        N_REPETITIONS = 1;
+        N_REPETITIONS = 10;
         COUPLING = 1;
         VARIABLE_GROUPING = 'Normal';
         % make constant the random initial assignment
@@ -34,7 +34,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         param.numSwapIterations = 1;
         param.bSoftInterpolation = false;
         param.numVcycles = 10;
-        param.numEntropyBins = 20; 
+        
         
 
         % initialize output data variables
@@ -53,17 +53,20 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         y = ones(GRID_SIZE^2, 1) + round(rand(GRID_SIZE^2, 1));
 
         %graph
-        fig = figure('Name', strcat('exp. ', num2str(j)));
+        fig = figure('Name', 'Change num bins exp') ;  %strcat('exp. ', num2str(i)));
+        hAx = axes;
         title(sprintf('Grid size: %d, optimization: %s', GRID_SIZE, param.optimization));
         xlabel('Vcycle');
         ylabel('Energy');
         graph_colors = num2cell(jet(N_REPETITIONS * 2), 2);
+        graph_colors = graph_colors(randperm(length(graph_colors)));
         legendInfo = '';
         leg_info = 1;
-
+        
 
         % do N_REPETITIONS iterations
         for i = 1 : N_REPETITIONS
+            param.numEntropyBins = (i -1) * 5; 
 
             % fix random seed, for reproducibility
 %             rng(i);
@@ -90,47 +93,73 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
             end
             tSS(i) = toc(tSS_);
             eSS(i) = msgmEnergy(G, x);
+            
+            fig1 = figure('Name', strcat('exp. ', num2str(i)));
+            title(sprintf('Grid size: %d, optimization: %s, Num bins: %d', GRID_SIZE, param.optimization, param.numEntropyBins));
+            xlabel('Vcycle');
+            ylabel('Energy');
+            figure(fig1);
             hold on
-            plot([1:param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i))); %, 'LineWidth', 2);
-            legendInfo{leg_info}= [strcat('eMS Rep', num2str(i))]; 
-            plot([1:param.numVcycles], eSS(i,:),  '-.', 'Color', cell2mat(graph_colors(end - i + 1))); %, 'LineWidth', 2);
-            legendInfo{leg_info + 1}= [strcat('eSS Rep', num2str(i))]; 
+            plot([1: param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i)));
+            plot([1: param.numVcycles], eSS(i, :),  '-.', 'Color', cell2mat(graph_colors(end - i + 1)));
+            legend('eMS', 'eSS',strcat('tMS:', mat2str(tMS(i, :))), strcat('tSS:', mat2str(tSS(i, :)))); 
+            hold off
+            print(fig1, strcat('results/group_exp1/exp', num2str(i)), '-djpeg');
+            
+            xlswrite('group_exp1.xls', ...
+            {i, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
+            VARIABLE_GROUPING, param.bSoftInterpolation, N_LABELS, COUPLING,...
+            ReprVector(eMS(i, param.numVcycles)), ReprVector(tMS(i, :)),... 
+            ReprVector(eSS(i, :)), ReprVector(tSS(i, :));}, 1, sprintf('A%d' ,(i+1)));
+               
+            figure(fig);
+            hold on
+            plot(hAx, eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i))); %, 'LineWidth', 2);
+            legendInfo{leg_info}= [strcat('eMS numBins:', num2str(param.numEntropyBins))]; 
+            plot(hAx, eSS(i,:),  '-.', 'Color', cell2mat(graph_colors(end - i + 1))); %, 'LineWidth', 2);
+            legendInfo{leg_info + 1}= [strcat('eSS numBins:', num2str(param.numEntropyBins))]; 
             leg_info = leg_info + 2;
         end
-        % plot avg of all repetitions, if more than one
-        if N_REPETITIONS > 1
-            plot([1:param.numVcycles], mean(eMS, 1), '-*', 'Color', 'm', 'LineWidth', 2);
-            legendInfo{N_REPETITIONS * 2 + 1}= ['avg. eMS ']; 
-            plot([1:param.numVcycles], mean(eSS, 1), '-*', 'Color', [1,0.4,0.6], 'LineWidth', 2);
-            legendInfo{N_REPETITIONS * 2 + 2}= ['avg. eSS ']; 
-        end
+%         legendInfo = PlotAvg(fig, legendInfo); 
+        
         % add legend and more info to plot
         l = legend(legendInfo);
         set(l, 'Location', 'bestoutside'); 
         descr = {strcat('numVcycles: ', num2str(param.numVcycles));
-            strcat('numEntropyBins: ', num2str(param.numEntropyBins));
+%             strcat('numEntropyBins: ', num2str(param.numEntropyBins));
             strcat('numLabels: ', num2str(N_LABELS));
             strcat('Variable grouping: ', num2str(VARIABLE_GROUPING));
             strcat('Coupling: ', num2str(COUPLING));
 %             strcat('Adjacency: ', '8-connected');
 %             strcat('Unary Potential: ', '[-1, 1]');
-            strcat('tMS:', mat2str(tMS));
-            strcat('tSS:', mat2str(tSS));
+%             strcat('tMS:', mat2str(tMS));
+%             strcat('tSS:', mat2str(tSS));
             };
         ax1 = axes('Position',[0 0 1 1],'Visible','off');
         axes(ax1) % sets ax1 to current axes
         text(0.7,0.35,descr);
         hold off
 
-        print(fig, strcat('results/group_exp1/exp', num2str(j)), '-djpeg');
+        print(fig, strcat('results/group_exp1/exps', num2str(i)), '-djpeg');
 
-        xlswrite('group_exp1.xls', ...
-            {j, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
-            VARIABLE_GROUPING, param.bSoftInterpolation, N_LABELS, COUPLING,...
-            ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
-            ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
+        
 %     end 
     
+end
+
+function [legendInfo] = PlotAvg(fig, legendInfo)
+%
+% plot avg of all repetitions, if more than one
+% parameters
+%   - fig  : figure
+%
+    figure(fig);
+    if N_REPETITIONS > 1
+        plot([1:param.numVcycles], mean(eMS, 1), '-*', 'Color', 'm', 'LineWidth', 2);
+        legendInfo{N_REPETITIONS * 2 + 1}= ['avg. eMS ']; 
+        plot([1:param.numVcycles], mean(eSS, 1), '-*', 'Color', [1,0.4,0.6], 'LineWidth', 2);
+        legendInfo{N_REPETITIONS * 2 + 2}= ['avg. eSS ']; 
+    end
 end
 
 function [x_str] = ReprVector(x)
