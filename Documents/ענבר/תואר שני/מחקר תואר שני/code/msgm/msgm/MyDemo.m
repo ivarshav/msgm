@@ -10,14 +10,14 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %
     % experiment number
 %      for i = 1: 15
-%         i = 1; %not real exp 
+        j = 11; %not real exp 
 
         % parameters
         GRID_SIZE = 100;
         N_LABELS = 3;
-        N_REPETITIONS = 10;
+        N_REPETITIONS = 3;
         COUPLING = 1;
-        VARIABLE_GROUPING = 'Normal';
+        VARIABLE_GROUPING = {'Inverse', 'Descending', 'Normal'};
         % make constant the random initial assignment
         SEED = 5;
 
@@ -45,7 +45,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 
         header = {'exp', 'grid size', 'num repetitions', 'optimization', 'numVcycles', 'numEntropyBins', ...
             'Variable grouping','bSoftInterpolation' ,'num labels','coupling', 'eMS', 'tMS', 'eSS', 'tSS'};
-        xlswrite('group_exp1.xls', header);
+        xlswrite('group_exp.xls', header);
 
         % random initial assignment
         % fix random seed, for reproducibility
@@ -53,12 +53,13 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         y = ones(GRID_SIZE^2, 1) + round(rand(GRID_SIZE^2, 1));
 
         %graph
-        fig = figure('Name', 'Change num bins exp') ;  %strcat('exp. ', num2str(i)));
+        fig = figure('Name', strcat('exp. ', num2str(j))) ;  
         hAx = axes;
         title(sprintf('Grid size: %d, optimization: %s', GRID_SIZE, param.optimization));
         xlabel('Vcycle');
         ylabel('Energy');
         graph_colors = num2cell(jet(N_REPETITIONS * 2), 2);
+%       shuffle
         graph_colors = graph_colors(randperm(length(graph_colors)));
         legendInfo = '';
         leg_info = 1;
@@ -66,7 +67,8 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 
         % do N_REPETITIONS iterations
         for i = 1 : N_REPETITIONS
-            param.numEntropyBins = (i -1) * 5; 
+%             param.numEntropyBins = (i -1) * 5; 
+            param.VariableGrouping = VARIABLE_GROUPING(i);
 
             % fix random seed, for reproducibility
 %             rng(i);
@@ -94,30 +96,30 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
             tSS(i) = toc(tSS_);
             eSS(i) = msgmEnergy(G, x);
             
-            fig1 = figure('Name', strcat('exp. ', num2str(i)));
-            title(sprintf('Grid size: %d, optimization: %s, Num bins: %d', GRID_SIZE, param.optimization, param.numEntropyBins));
-            xlabel('Vcycle');
-            ylabel('Energy');
-            figure(fig1);
-            hold on
-            plot([1: param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i)));
-            plot([1: param.numVcycles], eSS(i, :),  '-.', 'Color', cell2mat(graph_colors(end - i + 1)));
-            legend('eMS', 'eSS',strcat('tMS:', mat2str(tMS(i, :))), strcat('tSS:', mat2str(tSS(i, :)))); 
-            hold off
-            print(fig1, strcat('results/group_exp1/exp', num2str(i)), '-djpeg');
+%             fig1 = figure('Name', strcat('exp. ', num2str(i)));
+%             title(sprintf('Grid size: %d, optimization: %s, Num bins: %d', GRID_SIZE, param.optimization, param.numEntropyBins));
+%             xlabel('Vcycle');
+%             ylabel('Energy');
+%             figure(fig1);
+%             hold on
+%             plot([1: param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i)));
+%             plot([1: param.numVcycles], eSS(i, :),  '-.', 'Color', cell2mat(graph_colors(end - i + 1)));
+%             legend('eMS', 'eSS', strcat('tMS:', mat2str(tMS(i, :))), strcat('tSS:', mat2str(tSS(i, :)))); 
+%             hold off
+%             print(fig1, strcat('results/group_exp/exp', num2str(j)), '-djpeg');
             
-            xlswrite('group_exp1.xls', ...
-            {i, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
-            VARIABLE_GROUPING, param.bSoftInterpolation, N_LABELS, COUPLING,...
-            ReprVector(eMS(i, param.numVcycles)), ReprVector(tMS(i, :)),... 
-            ReprVector(eSS(i, :)), ReprVector(tSS(i, :));}, 1, sprintf('A%d' ,(i+1)));
+            xlswrite('group_exp.xls', ...
+            {j, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
+            param.VariableGrouping, param.bSoftInterpolation, N_LABELS, COUPLING,...
+            ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
+            ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
                
             figure(fig);
             hold on
             plot(hAx, eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i))); %, 'LineWidth', 2);
-            legendInfo{leg_info}= [strcat('eMS numBins:', num2str(param.numEntropyBins))]; 
+            legendInfo{leg_info}= [strcat('eMS group:', param.VariableGrouping)]; 
             plot(hAx, eSS(i,:),  '-.', 'Color', cell2mat(graph_colors(end - i + 1))); %, 'LineWidth', 2);
-            legendInfo{leg_info + 1}= [strcat('eSS numBins:', num2str(param.numEntropyBins))]; 
+            legendInfo{leg_info + 1}= [strcat('eSS group:', param.VariableGrouping)]; 
             leg_info = leg_info + 2;
         end
 %         legendInfo = PlotAvg(fig, legendInfo); 
@@ -126,9 +128,9 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         l = legend(legendInfo);
         set(l, 'Location', 'bestoutside'); 
         descr = {strcat('numVcycles: ', num2str(param.numVcycles));
-%             strcat('numEntropyBins: ', num2str(param.numEntropyBins));
+            strcat('numEntropyBins: ', num2str(param.numEntropyBins));
             strcat('numLabels: ', num2str(N_LABELS));
-            strcat('Variable grouping: ', num2str(VARIABLE_GROUPING));
+%             strcat('Variable grouping: ', num2str(VARIABLE_GROUPING));
             strcat('Coupling: ', num2str(COUPLING));
 %             strcat('Adjacency: ', '8-connected');
 %             strcat('Unary Potential: ', '[-1, 1]');
@@ -140,7 +142,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         text(0.7,0.35,descr);
         hold off
 
-        print(fig, strcat('results/group_exp1/exps', num2str(i)), '-djpeg');
+        print(fig, strcat('results/group_exp/exp', num2str(j)), '-djpeg');
 
         
 %     end 
