@@ -10,7 +10,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %
     % experiment number
 %      for i = 1: 15
-        j = 11; %not real exp 
+        j = 10; %not real exp 
 
         % parameters
         GRID_SIZE = 100;
@@ -53,7 +53,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         y = ones(GRID_SIZE^2, 1) + round(rand(GRID_SIZE^2, 1));
 
         %graph
-        fig = figure('Name', strcat('exp. ', num2str(j))) ;  
+        fig = figure('Name', strcat('exp. variable grouping')); %, num2str(j))) ;  
         hAx = axes;
         title(sprintf('Grid size: %d, optimization: %s', GRID_SIZE, param.optimization));
         xlabel('Vcycle');
@@ -68,7 +68,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         % do N_REPETITIONS iterations
         for i = 1 : N_REPETITIONS
 %             param.numEntropyBins = (i -1) * 5; 
-            param.VariableGrouping = VARIABLE_GROUPING(i);
+            param.VariableGrouping = VARIABLE_GROUPING{i};
 
             % fix random seed, for reproducibility
 %             rng(i);
@@ -96,30 +96,30 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
             tSS(i) = toc(tSS_);
             eSS(i) = msgmEnergy(G, x);
             
-%             fig1 = figure('Name', strcat('exp. ', num2str(i)));
-%             title(sprintf('Grid size: %d, optimization: %s, Num bins: %d', GRID_SIZE, param.optimization, param.numEntropyBins));
-%             xlabel('Vcycle');
-%             ylabel('Energy');
-%             figure(fig1);
-%             hold on
-%             plot([1: param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i)));
-%             plot([1: param.numVcycles], eSS(i, :),  '-.', 'Color', cell2mat(graph_colors(end - i + 1)));
-%             legend('eMS', 'eSS', strcat('tMS:', mat2str(tMS(i, :))), strcat('tSS:', mat2str(tSS(i, :)))); 
-%             hold off
-%             print(fig1, strcat('results/group_exp/exp', num2str(j)), '-djpeg');
+            fig1 = figure('Name', strcat('exp. ', num2str(i + j)));
+            title(sprintf('Grid size: %d, optimization: %s, Variable grouping: %s', GRID_SIZE, param.optimization, param.VariableGrouping));
+            xlabel('Vcycle');
+            ylabel('Energy');
+            figure(fig1);
+            hold on
+            plot([1: param.numVcycles], eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i)));
+            plot([1: param.numVcycles], eSS(i, :),  '-.', 'Color', cell2mat(graph_colors(end - i + 1)));
+            legend('eMS', 'eSS', strcat('tMS:', mat2str(tMS(i, :))), strcat('tSS:', mat2str(tSS(i, :)))); 
+            hold off
+            print(fig1, strcat('results/group_exp/exp', num2str(j + i)), '-djpeg');
             
             xlswrite('group_exp.xls', ...
-            {j, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
+            {j + i, GRID_SIZE, N_REPETITIONS, param.optimization, param.numVcycles, param.numEntropyBins, ...
             param.VariableGrouping, param.bSoftInterpolation, N_LABELS, COUPLING,...
             ReprVector(eMS(:, param.numVcycles)), ReprVector(tMS),... 
-            ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1)));
+            ReprVector(eSS), ReprVector(tSS);}, 1, sprintf('A%d' ,(j+1 + i)));
                
             figure(fig);
             hold on
             plot(hAx, eMS(i, :), '-o', 'Color', cell2mat(graph_colors(i))); %, 'LineWidth', 2);
-            legendInfo{leg_info}= [strcat('eMS group:', param.VariableGrouping)]; 
+            legendInfo{leg_info} = [strcat('eMS group:', param.VariableGrouping)]; 
             plot(hAx, eSS(i,:),  '-.', 'Color', cell2mat(graph_colors(end - i + 1))); %, 'LineWidth', 2);
-            legendInfo{leg_info + 1}= [strcat('eSS group:', param.VariableGrouping)]; 
+            legendInfo{leg_info + 1} = [strcat('eSS group:', param.VariableGrouping)]; 
             leg_info = leg_info + 2;
         end
 %         legendInfo = PlotAvg(fig, legendInfo); 
@@ -142,7 +142,7 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
         text(0.7,0.35,descr);
         hold off
 
-        print(fig, strcat('results/group_exp/exp', num2str(j)), '-djpeg');
+        print(fig, strcat('results/group_exp/exps', num2str(j)), '-djpeg');
 
         
 %     end 

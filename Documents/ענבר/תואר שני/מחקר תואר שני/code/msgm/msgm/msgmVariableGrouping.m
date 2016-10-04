@@ -48,6 +48,11 @@ function [vg, mapFineToCoarse] = msgmVariableGrouping(G, param, bInitialized)
             v1 = v2;
             v2 = v_;
         end
+        if strcmp(param.VariableGrouping, 'Inverse');
+            v_ = v1;
+            v1 = v2;
+            v2 = v_;
+        end
         
         % verify that v2 has not been assigned
         % ..and that v1 is either seed or not assigned

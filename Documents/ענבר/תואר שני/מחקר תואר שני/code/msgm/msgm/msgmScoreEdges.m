@@ -43,8 +43,12 @@ function [vEdgeList, vbReverseEdge] = msgmScoreEdges(G, param, bInitialized)
         Hcond = Hcond / log(G.numLabels);               % normalizing by maximal entropy
         Hcond = round(Hcond * param.numEntropyBins);    % bin the entropy score
         Hcond = Hcond + 0.5 * rand(size(Hcond));        % add randomness, avoid bin-mixing
-    end  
-    [~, edgeInds] = sort(Hcond, 'ascend');
+    end
+    if strcmp(param.VariableGrouping, 'Descending');
+        [~, edgeInds] = sort(Hcond, 'descend');
+    else
+        [~, edgeInds] = sort(Hcond, 'ascend');
+    end
   	
     % output
     vEdgeList = edgeInds;
