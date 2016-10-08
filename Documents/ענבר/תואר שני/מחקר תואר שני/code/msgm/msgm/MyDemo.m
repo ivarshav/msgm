@@ -10,14 +10,14 @@ function [eMS, tMS, eSS, tSS] = MyDemo()
 %
     % experiment number
 %      for i = 1: 15
-        j = 10; %not real exp 
+        j = 13; %not real exp 
 
         % parameters
         GRID_SIZE = 100;
         N_LABELS = 3;
-        N_REPETITIONS = 3;
+        N_REPETITIONS = 4;
         COUPLING = 1;
-        VARIABLE_GROUPING = {'Inverse', 'Descending', 'Normal'};
+        VARIABLE_GROUPING = {'2-lessEdges', '3-lessEdges', '4-lessEdges', 'Normal'};
         % make constant the random initial assignment
         SEED = 5;
 

@@ -35,7 +35,12 @@ function [vg, mapFineToCoarse] = msgmVariableGrouping(G, param, bInitialized)
     % assign SEED variables and their respective group
     iEdge = 0;
     iGroup = 0;
-    while (any(vbVars) &&  (iEdge < numel(orderedEdgeList)))
+    if isempty(strfind(param.VariableGrouping,'lessEdges'))
+        divider = 1;
+    else
+        divider = str2double(param.VariableGrouping(1));
+    end
+    while (any(vbVars) &&  (iEdge < numel(orderedEdgeList) / divider))
        
         % get the next edge
         iEdge = iEdge + 1;
