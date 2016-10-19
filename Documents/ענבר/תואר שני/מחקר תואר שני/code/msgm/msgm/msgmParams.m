@@ -16,7 +16,7 @@ function param = msgmParams()
     % interpolation
     param.bSoftInterpolation = true;    % boolean flag for using soft interpolation
     
-    param.VariableGrouping = 'Normal';  % 'Normal', 'Inverse', 'Descending', 'x-lessEdges'
+    param.VariableGrouping = 'Normal';  % 'Normal', 'Inverse', 'Descending', 'x-lessEdges' , 'x-inGroup'
 end
 
 
